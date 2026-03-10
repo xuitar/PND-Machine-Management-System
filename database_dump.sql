@@ -36,14 +36,17 @@ CREATE TABLE IF NOT EXISTS `cash_collection` (
   CONSTRAINT `NotCompleted,NoAmount` CHECK (((`Completed` <> 0) or (`Amount` <= 0)))
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.cash_collection: ~6 rows (approximately)
+-- Dumping data for table parking_machine_management_system.cash_collection: ~9 rows (approximately)
 INSERT INTO `cash_collection` (`CashCollectionID`, `MachineLocationID`, `CashCollector`, `Amount`, `Timestamp`, `Completed`) VALUES
 	(1, 11, 9, 234.65, '2026-03-04 11:23:59', 1),
 	(2, 53, 9, 0.00, '2026-03-04 11:28:44', 0),
 	(3, 109, 9, 500.00, '2026-03-04 10:00:00', 1),
 	(4, 110, 9, 465.00, '2026-03-04 10:23:32', 1),
 	(5, 109, 9, 568.00, '2026-02-10 16:55:14', 1),
-	(6, 110, 9, 345.00, '2026-02-10 16:59:17', 1);
+	(6, 110, 9, 345.00, '2026-02-10 16:59:17', 1),
+	(8, 38, 9, 45.00, '2026-03-01 17:27:32', 1),
+	(9, 28, 9, 123.00, '2026-02-10 17:27:57', 1),
+	(10, 45, 9, 345.00, '2026-02-10 17:28:24', 1);
 
 -- Dumping structure for table parking_machine_management_system.issue
 CREATE TABLE IF NOT EXISTS `issue` (
@@ -63,11 +66,12 @@ CREATE TABLE IF NOT EXISTS `issue` (
   CONSTRAINT `Status` CHECK ((`Status` in (0,1)))
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.issue: ~3 rows (approximately)
+-- Dumping data for table parking_machine_management_system.issue: ~4 rows (approximately)
 INSERT INTO `issue` (`IssueID`, `DeploymentID`, `UserID`, `IssueType`, `Description`, `Severity`, `Timestamp`, `Status`) VALUES
 	(1, 48, 9, 'Fault', 'Machine failed to enter cashcollection mode', 'Partly operational', '2026-03-04 11:30:40', 0),
 	(2, 6, 2, 'Fault', 'Machine not accepting coins, card payment working', 'Partly operational', '2026-02-04 12:45:07', 1),
-	(3, 6, 1, 'Vandalism', 'Grafitti on the side of machine', 'Cosmetic', '2026-03-01 09:55:57', 0);
+	(3, 6, 1, 'Vandalism', 'Grafitti on the side of machine', 'Cosmetic', '2026-03-01 09:55:57', 0),
+	(4, 54, 2, 'Fault', 'Out of order', 'OOO', '2026-03-10 17:30:10', 0);
 
 -- Dumping structure for table parking_machine_management_system.issue_image
 CREATE TABLE IF NOT EXISTS `issue_image` (
@@ -358,9 +362,10 @@ CREATE TABLE IF NOT EXISTS `machine_status_history` (
   CONSTRAINT `Status_UserID` FOREIGN KEY (`ChangedBy`) REFERENCES `users` (`UserID`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.machine_status_history: ~1 rows (approximately)
+-- Dumping data for table parking_machine_management_system.machine_status_history: ~2 rows (approximately)
 INSERT INTO `machine_status_history` (`StatusEventID`, `DeploymentID`, `ChangedBy`, `Status`, `ChangedAt`) VALUES
-	(1, 9, 9, 'OOO', '2026-03-04 12:00:02');
+	(1, 9, 9, 'OOO', '2026-03-04 12:00:02'),
+	(2, 54, 2, 'OOO', '2026-03-10 17:31:10');
 
 -- Dumping structure for table parking_machine_management_system.maintenance
 CREATE TABLE IF NOT EXISTS `maintenance` (
