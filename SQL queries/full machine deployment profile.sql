@@ -1,6 +1,7 @@
 SELECT
-  md.DeploymentID, md.MachineID, md.MachineLocationID,
-  md.StartDate, md.EndDate,
+  CONCAT('M', md.MachineID) AS MachineID, 
+  CONCAT('WT', md.MachineLocationID) AS MachineLocationID,
+  md.DeploymentID, md.StartDate, md.EndDate,
 
   pa.ParkingAreaID, pa.LocationName, pa.Postcode,
   pa.ParkingZone, pa.RingGoLocationCode,

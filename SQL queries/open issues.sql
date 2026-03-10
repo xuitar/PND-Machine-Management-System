@@ -3,7 +3,8 @@ SELECT
     i.`Timestamp` AS ReportedAt,
     TIMESTAMPDIFF(DAY, i.`Timestamp`, NOW()) AS DaysOpen,
 
-    md.MachineID, ml.MachineLocationID,
+    CONCAT('M', md.MachineID) AS MachineID, 
+    CONCAT('WT', ml.MachineLocationID) AS MachineLocationID,
     
     pa.LocationName, pa.Postcode, pa.ParkingZone,
 
@@ -24,3 +25,4 @@ JOIN users u
 
 WHERE i.Status = 0
 ORDER BY i.`Timestamp` ASC;
+
