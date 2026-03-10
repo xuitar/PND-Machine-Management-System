@@ -71,7 +71,7 @@ INSERT INTO `issue` (`IssueID`, `DeploymentID`, `UserID`, `IssueType`, `Descript
 
 -- Dumping structure for table parking_machine_management_system.issue_image
 CREATE TABLE IF NOT EXISTS `issue_image` (
-  `ImageID` int unsigned NOT NULL,
+  `ImageID` int unsigned NOT NULL AUTO_INCREMENT,
   `IssueID` int unsigned NOT NULL,
   `OriginalFileName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `URLPath` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
@@ -79,9 +79,12 @@ CREATE TABLE IF NOT EXISTS `issue_image` (
   PRIMARY KEY (`ImageID`),
   KEY `IssueImage_IssueID` (`IssueID`),
   CONSTRAINT `IssueImage_IssueID` FOREIGN KEY (`IssueID`) REFERENCES `issue` (`IssueID`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.issue_image: ~0 rows (approximately)
+-- Dumping data for table parking_machine_management_system.issue_image: ~2 rows (approximately)
+INSERT INTO `issue_image` (`ImageID`, `IssueID`, `OriginalFileName`, `URLPath`, `FileType`) VALUES
+	(1, 2, 'image03412.jpg', 'www.', 'jpg'),
+	(2, 2, 'image03413.jpg', 'www.', 'jpg');
 
 -- Dumping structure for table parking_machine_management_system.machine
 CREATE TABLE IF NOT EXISTS `machine` (
@@ -92,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `machine` (
   CONSTRAINT `MachineConfig` FOREIGN KEY (`ConfigID`) REFERENCES `machine_config` (`ConfigID`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.machine: ~52 rows (approximately)
+-- Dumping data for table parking_machine_management_system.machine: ~55 rows (approximately)
 INSERT INTO `machine` (`MachineID`, `ConfigID`) VALUES
 	(1, 6),
 	(2, 7),
@@ -375,7 +378,7 @@ CREATE TABLE IF NOT EXISTS `maintenance` (
   CONSTRAINT `Maintenance_DeploymentID` FOREIGN KEY (`DeploymentID`) REFERENCES `machine_deployment` (`DeploymentID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `Maintenance_IssueID` FOREIGN KEY (`IssueID`) REFERENCES `issue` (`IssueID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `Maintenance_UserID` FOREIGN KEY (`Technician`) REFERENCES `users` (`UserID`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table parking_machine_management_system.maintenance: ~2 rows (approximately)
 INSERT INTO `maintenance` (`RecordID`, `DeploymentID`, `Technician`, `IssueID`, `Timestamp`, `Description`, `Outcome`) VALUES
