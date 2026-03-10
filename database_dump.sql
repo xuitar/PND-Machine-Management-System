@@ -34,9 +34,9 @@ CREATE TABLE IF NOT EXISTS `cash_collection` (
   CONSTRAINT `CashCollector_User` FOREIGN KEY (`CashCollector`) REFERENCES `users` (`UserID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `Completed` CHECK ((`Completed` in (0,1))),
   CONSTRAINT `NotCompleted,NoAmount` CHECK (((`Completed` <> 0) or (`Amount` <= 0)))
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.cash_collection: ~9 rows (approximately)
+-- Dumping data for table parking_machine_management_system.cash_collection: ~4 rows (approximately)
 INSERT INTO `cash_collection` (`CashCollectionID`, `MachineLocationID`, `CashCollector`, `Amount`, `Timestamp`, `Completed`) VALUES
 	(1, 11, 9, 234.65, '2026-03-04 11:23:59', 1),
 	(2, 53, 9, 0.00, '2026-03-04 11:28:44', 0),
@@ -64,9 +64,9 @@ CREATE TABLE IF NOT EXISTS `issue` (
   CONSTRAINT `Issue_DeploymentID` FOREIGN KEY (`DeploymentID`) REFERENCES `machine_deployment` (`DeploymentID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `Issue_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `Status` CHECK ((`Status` in (0,1)))
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.issue: ~4 rows (approximately)
+-- Dumping data for table parking_machine_management_system.issue: ~3 rows (approximately)
 INSERT INTO `issue` (`IssueID`, `DeploymentID`, `UserID`, `IssueType`, `Description`, `Severity`, `Timestamp`, `Status`) VALUES
 	(1, 48, 9, 'Fault', 'Machine failed to enter cashcollection mode', 'Partly operational', '2026-03-04 11:30:40', 0),
 	(2, 6, 2, 'Fault', 'Machine not accepting coins, card payment working', 'Partly operational', '2026-02-04 12:45:07', 1),
@@ -360,9 +360,9 @@ CREATE TABLE IF NOT EXISTS `machine_status_history` (
   KEY `Status_UserID` (`ChangedBy`),
   CONSTRAINT `Status_DeploymentID` FOREIGN KEY (`DeploymentID`) REFERENCES `machine_deployment` (`DeploymentID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `Status_UserID` FOREIGN KEY (`ChangedBy`) REFERENCES `users` (`UserID`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.machine_status_history: ~2 rows (approximately)
+-- Dumping data for table parking_machine_management_system.machine_status_history: ~0 rows (approximately)
 INSERT INTO `machine_status_history` (`StatusEventID`, `DeploymentID`, `ChangedBy`, `Status`, `ChangedAt`) VALUES
 	(1, 9, 9, 'OOO', '2026-03-04 12:00:02'),
 	(2, 54, 2, 'OOO', '2026-03-10 17:31:10');
@@ -527,12 +527,33 @@ CREATE TABLE IF NOT EXISTS `service` (
   CONSTRAINT `InsideCleanBool` CHECK ((`InsideClean` in (0,1))),
   CONSTRAINT `OutsideCleanBool` CHECK ((`OutsideClean` in (0,1))),
   CONSTRAINT `PrinterCheckBool` CHECK ((`PrinterCheck` in (0,1)))
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.service: ~2 rows (approximately)
+-- Dumping data for table parking_machine_management_system.service: ~3 rows (approximately)
 INSERT INTO `service` (`RecordID`, `DeploymentID`, `Technician`, `Timestamp`, `OutsideClean`, `InsideClean`, `CoinSelectorCheck`, `BankingComsCheck`, `PrinterCheck`, `Comments`) VALUES
 	(3, 2, 8, '2026-03-04 12:18:00', 1, 1, 1, 1, 1, 'Fully operational'),
-	(4, 1, 8, '2026-03-04 13:15:41', 1, 1, 1, 0, 1, 'Routine service: cleaned, coin path checked, printer tested.');
+	(4, 1, 8, '2026-03-04 13:15:41', 1, 1, 1, 0, 1, 'Routine service: cleaned, coin path checked, printer tested.'),
+	(8, 3, 8, '2026-03-10 18:34:59', 1, 1, 1, 0, 1, 'Routine service: cleaned, coin path checked, printer tested.');
+
+-- Dumping structure for procedure parking_machine_management_system.ServiceVisitRecord
+DELIMITER //
+CREATE PROCEDURE `ServiceVisitRecord`(
+	IN `pDeploymentID` INT UNSIGNED,
+	IN `pTechnician` INT UNSIGNED,
+	IN `pOutsideClean` TINYINT,
+	IN `pInsideClean` TINYINT,
+	IN `pCoinSelectorCheck` TINYINT,
+	IN `pBankingComsCheck` TINYINT,
+	IN `pPrinterCheck` TINYINT,
+	IN `pComments` VARCHAR(500)
+)
+BEGIN
+	INSERT INTO service
+   	(DeploymentID, Technician, `Timestamp`, OutsideClean, InsideClean, CoinSelectorCheck, BankingComsCheck, PrinterCheck, Comments)
+	VALUES
+   	(pDeploymentID, pTechnician, NOW(), pOutsideClean, pInsideClean, pCoinSelectorCheck, pBankingComsCheck, pPrinterCheck, pComments);
+END//
+DELIMITER ;
 
 -- Dumping structure for table parking_machine_management_system.tariff
 CREATE TABLE IF NOT EXISTS `tariff` (
