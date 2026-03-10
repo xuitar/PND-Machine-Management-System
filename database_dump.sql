@@ -363,7 +363,7 @@ CREATE TABLE IF NOT EXISTS `maintenance` (
   `IssueID` int unsigned NOT NULL,
   `Timestamp` datetime NOT NULL,
   `Description` varchar(500) NOT NULL DEFAULT '',
-  `Outcome` varchar(50) NOT NULL DEFAULT '',
+  `Outcome` enum('Resolved','Pending part','Pending engineer') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`RecordID`),
   KEY `Maintenance_DeploymentID` (`DeploymentID`),
   KEY `Maintenance_IssueID` (`IssueID`),
@@ -371,12 +371,12 @@ CREATE TABLE IF NOT EXISTS `maintenance` (
   CONSTRAINT `Maintenance_DeploymentID` FOREIGN KEY (`DeploymentID`) REFERENCES `machine_deployment` (`DeploymentID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `Maintenance_IssueID` FOREIGN KEY (`IssueID`) REFERENCES `issue` (`IssueID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `Maintenance_UserID` FOREIGN KEY (`Technician`) REFERENCES `users` (`UserID`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table parking_machine_management_system.maintenance: ~2 rows (approximately)
 INSERT INTO `maintenance` (`RecordID`, `DeploymentID`, `Technician`, `IssueID`, `Timestamp`, `Description`, `Outcome`) VALUES
-	(1, 6, 8, 3, '2026-03-04 12:22:27', 'Grafitti removed', 'Resolved'),
-	(2, 3, 8, 2, '2026-03-04 14:34:15', 'Replaced coin selector module', 'Resolved');
+	(1, 6, 8, 3, '2026-03-04 12:22:27', 'Grafitti Removed', 'Resolved'),
+	(2, 3, 8, 2, '2026-03-04 14:34:18', 'Replaced coin selector module', 'Resolved');
 
 -- Dumping structure for table parking_machine_management_system.parking_area
 CREATE TABLE IF NOT EXISTS `parking_area` (
