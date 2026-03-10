@@ -180,8 +180,9 @@ CREATE TABLE IF NOT EXISTS `machine_deployment` (
   KEY `MachineLocationID` (`MachineLocationID`),
   KEY `Deployment_MachineID` (`MachineID`),
   CONSTRAINT `Deployment_MachineID` FOREIGN KEY (`MachineID`) REFERENCES `machine` (`MachineID`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `Deployment_MachineLocationID` FOREIGN KEY (`MachineLocationID`) REFERENCES `machine_location` (`MachineLocationID`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `Deployment_MachineLocationID` FOREIGN KEY (`MachineLocationID`) REFERENCES `machine_location` (`MachineLocationID`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `EndDate>StartDate` CHECK (((`EndDate` is null) or (`EndDate` > `StartDate`)))
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table parking_machine_management_system.machine_deployment: ~55 rows (approximately)
 INSERT INTO `machine_deployment` (`DeploymentID`, `MachineID`, `MachineLocationID`, `StartDate`, `EndDate`) VALUES
@@ -475,7 +476,8 @@ CREATE TABLE IF NOT EXISTS `parking_area_tariff` (
   KEY `ParkingAreaID` (`ParkingAreaID`),
   KEY `TariffID` (`TariffID`),
   CONSTRAINT `ParkingAreaID` FOREIGN KEY (`ParkingAreaID`) REFERENCES `parking_area` (`ParkingAreaID`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `TariffID` FOREIGN KEY (`TariffID`) REFERENCES `tariff` (`TariffID`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `TariffID` FOREIGN KEY (`TariffID`) REFERENCES `tariff` (`TariffID`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `EffectiveTo>EffectiveFrom` CHECK (((`EffectiveTo` is null) or (`EffectiveTo` > `EffectiveFrom`)))
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table parking_machine_management_system.parking_area_tariff: ~11 rows (approximately)
@@ -548,7 +550,7 @@ CREATE TABLE IF NOT EXISTS `tariff_step` (
   `DurationMinutes` int unsigned NOT NULL,
   `price` decimal(6,2) unsigned NOT NULL DEFAULT (0),
   PRIMARY KEY (`TariffStepID`),
-  KEY `TariffStep_TariffID` (`TariffID`),
+  UNIQUE KEY `TariffID` (`TariffID`,`DurationMinutes`),
   CONSTRAINT `TariffStep_TariffID` FOREIGN KEY (`TariffID`) REFERENCES `tariff` (`TariffID`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -683,6 +685,104 @@ CREATE TRIGGER `issue_active_user_update_check` BEFORE UPDATE ON `issue` FOR EAC
    ) THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Inactive user can not create new issue';
+   END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
+-- Dumping structure for trigger parking_machine_management_system.machine_deployment_active_location_insert_chk
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `machine_deployment_active_location_insert_chk` BEFORE INSERT ON `machine_deployment` FOR EACH ROW BEGIN
+	IF EXISTS (
+      SELECT 1
+      FROM machine_deployment md
+      WHERE md.MachineLocationID = NEW.MachineLocationID
+        	AND (
+         	(md.EndDate IS NULL AND NEW.EndDate IS NULL)
+            OR (md.EndDate IS NULL AND md.StartDate < NEW.EndDate)
+            OR (NEW.EndDate IS NULL AND NEW.StartDate < md.EndDate)
+            OR (md.EndDate IS NOT NULL AND NEW.EndDate IS NOT NULL
+               AND NEW.StartDate < md.EndDate
+               AND NEW.EndDate > md.StartDate)
+        )
+   ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'A machine is already deployed at this location during the given period';
+   END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
+-- Dumping structure for trigger parking_machine_management_system.machine_deployment_active_location_update_chk
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `machine_deployment_active_location_update_chk` BEFORE INSERT ON `machine_deployment` FOR EACH ROW BEGIN
+	IF EXISTS (
+      SELECT 1
+      FROM machine_deployment md
+      WHERE md.MachineLocationID = NEW.MachineLocationID
+      AND md.DeploymentID <> NEW.DeploymentID -- only in update
+        	AND (
+         	(md.EndDate IS NULL AND NEW.EndDate IS NULL)
+            OR (md.EndDate IS NULL AND md.StartDate < NEW.EndDate)
+            OR (NEW.EndDate IS NULL AND NEW.StartDate < md.EndDate)
+            OR (md.EndDate IS NOT NULL AND NEW.EndDate IS NOT NULL
+               AND NEW.StartDate < md.EndDate
+               AND NEW.EndDate > md.StartDate)
+        )
+   ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'A machine is already deployed at this location during the given period';
+   END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
+-- Dumping structure for trigger parking_machine_management_system.machine_deployment_active_machine_insert_chk
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `machine_deployment_active_machine_insert_chk` BEFORE INSERT ON `machine_deployment` FOR EACH ROW BEGIN
+   IF EXISTS (
+      SELECT 1
+      FROM machine_deployment md
+      WHERE md.MachineID = NEW.MachineID
+         AND (
+         	(md.EndDate IS NULL AND NEW.EndDate IS NULL)
+            OR (md.EndDate IS NULL AND md.StartDate < NEW.EndDate)
+            OR (NEW.EndDate IS NULL AND NEW.StartDate < md.EndDate)
+            OR (md.EndDate IS NOT NULL AND NEW.EndDate IS NOT NULL
+               AND NEW.StartDate < md.EndDate
+               AND NEW.EndDate > md.StartDate)
+         )
+   ) THEN
+      SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'This machine is already deployed during the given period';
+   END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
+-- Dumping structure for trigger parking_machine_management_system.machine_deployment_active_machine_update_chk
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `machine_deployment_active_machine_update_chk` BEFORE UPDATE ON `machine_deployment` FOR EACH ROW BEGIN
+   IF EXISTS (
+      SELECT 1
+      FROM machine_deployment md
+      WHERE md.MachineID = NEW.MachineID
+	      AND md.DeploymentID <> NEW.DeploymentID
+         AND (
+         	(md.EndDate IS NULL AND NEW.EndDate IS NULL)
+            OR (md.EndDate IS NULL AND md.StartDate < NEW.EndDate)
+            OR (NEW.EndDate IS NULL AND NEW.StartDate < md.EndDate)
+            OR (md.EndDate IS NOT NULL AND NEW.EndDate IS NOT NULL
+               AND NEW.StartDate < md.EndDate
+               AND NEW.EndDate > md.StartDate)
+         )
+   ) THEN
+      SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'This machine is already deployed during the given period';
    END IF;
 END//
 DELIMITER ;
