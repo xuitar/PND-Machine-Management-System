@@ -1,12 +1,3 @@
-INSERT INTO maintenance
-(DeploymentID, Technician, IssueID, Timestamp, Description, Outcome)
-VALUES
-(3, 8, 2, NOW(), 'Replaced coin selector module', 'Resolved');
-
-UPDATE issue
-SET Status = 1
-WHERE IssueID = 2;
-
 -- Inputs
 SET @DeploymentID := 3;
 SET @TechnicianUserID := 8;     -- must be a Technician
