@@ -32,15 +32,18 @@ CREATE TABLE IF NOT EXISTS `cash_collection` (
   KEY `CashCollector_User` (`CashCollector`),
   CONSTRAINT `CashCollection_MachineLocationID` FOREIGN KEY (`MachineLocationID`) REFERENCES `machine_location` (`MachineLocationID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `CashCollector_User` FOREIGN KEY (`CashCollector`) REFERENCES `users` (`UserID`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `Completed` CHECK ((`Completed` in (0,1)))
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `Completed` CHECK ((`Completed` in (0,1))),
+  CONSTRAINT `NotCompleted,NoAmount` CHECK (((`Completed` <> 0) or (`Amount` <= 0)))
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.cash_collection: ~4 rows (approximately)
+-- Dumping data for table parking_machine_management_system.cash_collection: ~6 rows (approximately)
 INSERT INTO `cash_collection` (`CashCollectionID`, `MachineLocationID`, `CashCollector`, `Amount`, `Timestamp`, `Completed`) VALUES
 	(1, 11, 9, 234.65, '2026-03-04 11:23:59', 1),
 	(2, 53, 9, 0.00, '2026-03-04 11:28:44', 0),
 	(3, 109, 9, 500.00, '2026-03-04 10:00:00', 1),
-	(4, 110, 9, 465.00, '2026-03-04 10:23:32', 1);
+	(4, 110, 9, 465.00, '2026-03-04 10:23:32', 1),
+	(5, 109, 9, 568.00, '2026-02-10 16:55:14', 1),
+	(6, 110, 9, 345.00, '2026-02-10 16:59:17', 1);
 
 -- Dumping structure for table parking_machine_management_system.issue
 CREATE TABLE IF NOT EXISTS `issue` (
@@ -352,7 +355,7 @@ CREATE TABLE IF NOT EXISTS `machine_status_history` (
   CONSTRAINT `Status_UserID` FOREIGN KEY (`ChangedBy`) REFERENCES `users` (`UserID`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table parking_machine_management_system.machine_status_history: ~0 rows (approximately)
+-- Dumping data for table parking_machine_management_system.machine_status_history: ~1 rows (approximately)
 INSERT INTO `machine_status_history` (`StatusEventID`, `DeploymentID`, `ChangedBy`, `Status`, `ChangedAt`) VALUES
 	(1, 9, 9, 'OOO', '2026-03-04 12:00:02');
 
