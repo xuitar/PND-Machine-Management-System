@@ -1,3 +1,10 @@
+-- Find machineLocationID with tariff allocated
+-- SELECT ml.MachineLocationID, pat.ParkingAreaID
+-- FROM parking_area_tariff as pat
+-- JOIN machine_location as ml
+--     ON ml.ParkingAreaID = pat.ParkingAreaID
+
+-- values you can try for implemented dataset: 109, 110,23,25,26,32,42
 SET @MachineLocationID := 109;
 
 SELECT
